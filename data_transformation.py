@@ -38,7 +38,14 @@ def aggregate(df, resample = 'week'):
     return df 
 
 ###
+def split(df, Years = [2017]):
 
+    #train test split, test is year list
+    # Years in Years will be excluded in training
+    test = df[df['year'].isin(Years)]
+    train = df[~df['year'].isin(Years)]
+    
+    return train ,test
 
 def prep(df):
 

@@ -1,21 +1,14 @@
 import numpy as np
 import pandas as pd
 from model import xgb_model
-from data_transformation import prep
+from data_transformation import prep, split
 
 import matplotlib.pyplot as plt
 from pathlib import Path
 import pickle
 
 
-def split(df, Years = [2017]):
 
-    #train test split, test is year list
-    # Years in Years will be excluded in training
-    test = df[df['year'].isin(Years)]
-    train = df[~df['year'].isin(Years)]
-    
-    return train ,test
 
 
 def train(df, to_predict = 'Artikel3', plot = False):
