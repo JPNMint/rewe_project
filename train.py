@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-from model import xgb_model, outlier_detector
+from model import xgb_model, outlier_detector, arima_model
 from data_transformation import prep, split
 
 import matplotlib.pyplot as plt
@@ -37,17 +37,34 @@ def train(df, to_predict = 'Artikel3', plot = False, winsorization = True, type 
 def pipeline(df, to_predict = 'Artikel3', plot = False, winsorization = True, type = 'Regressor'):
     if type == 'Regressor':
         df_feat = prep(df)
-        model = train(df_feat, to_predict = to_predict, type = type)
+        model = train(df_feat, to_predict = to_predict, type = type, winsorization = winsorization)
     if type == 'Outlier':
         df_feat = prep(df)
-        model = train(df_feat, to_predict = to_predict, type = type)
+        model = train(df_feat, to_predict = to_predict, type = type, winsorization = winsorization)
 
 
     return model
 
+
+def arima_train(df, to_predict = 'Artikel3'):
+    train ,test = split(df)
+    model = arima_model(train)
+    #filename = Path().resolve()/f"models/arima_model_{to_predict}.sav"
+    #pickle.dump(model, open(filename, 'wb'))
+
+
+    return model 
+
 if __name__ == "__main__":
     df = pd.read_excel('data/Zeitreihen_2Artikel.xlsx')  
     #model = pipeline(df, to_predict = 'Artikel5', plot = False,  winsorization = True, train = 'Regressor)
+    #pipeline(df, to_predict = 'Artikel3', plot = False,  winsorization = False, type = 'Regressor')
+    #pipeline(df, to_predict = 'Artikel5', plot = False,  winsorization = False, type = 'Regressor')
+    #pipeline(df, to_predict = 'Artikel3', plot = False,  winsorization = True, type = 'Regressor')
+    #pipeline(df, to_predict = 'Artikel5', plot = False,  winsorization = True, type = 'Regressor')
+                          
 
-    model = pipeline(df, to_predict = 'Artikel5', plot = False, type = 'Outlier')
-    #model = pipeline(df, to_predict = 'Artikel3', plot = False, type = 'Outlier')
+
+
+    #pipeline(df, to_predict = 'Artikel5', plot = False, type = 'Outlier')
+    #pipeline(df, to_predict = 'Artikel3', plot = False, type = 'Outlier')

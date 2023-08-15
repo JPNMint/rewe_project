@@ -47,7 +47,7 @@ def split(df, Years = [2017]):
     
     return train ,test
 
-def prep(df):
+def prep(df, type = 'regression'):
 
     df = df.dropna()
     ## add interpolation for the 13 missing values ?
@@ -66,6 +66,10 @@ def prep(df):
     df['Holidays'] = df['DATUM'].dt.date.isin(at_holidays)
     #drop holidays
     df = df[df['Holidays'] != 1]    
+
+    if type == 'arima':
+        df = df.set_index('DATUM').drop(['year','Holidays', 'dayofweek'], axis = 1)
+        return df
 
 
     

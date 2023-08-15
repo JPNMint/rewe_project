@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 from sklearn.metrics import mean_squared_error, mean_absolute_error, roc_auc_score
 from sklearn.preprocessing import StandardScaler
 from scipy.stats.mstats import winsorize
-
+import pmdarima as pm
 
 
 def xgb_model(train, test, to_predict = 'Artikel3', plot = False, winsorization = True):
@@ -71,12 +71,9 @@ def xgb_model(train, test, to_predict = 'Artikel3', plot = False, winsorization 
 
 
 
-def get_label(df, outlier_threshold = 2, to_predict = "Artikel3"):
+def get_label(df, outlier_threshold = 1, to_predict = "Artikel3"):
+    #https://www.statisticshowto.com/probability-and-statistics/z-score/
     z_scores = np.abs((df[to_predict] - df[to_predict].mean()) / df[to_predict].std())
-
-    # Define a threshold for identifying outliers (e.g., Z-score > 3)
-
-    # Create a new column 'is_outlier' to label outliers
     df['is_outlier'] = z_scores > outlier_threshold
     return df
 
@@ -85,22 +82,18 @@ def outlier_detector(train, test, to_predict = 'Artikel3', outlier_threshold = 1
     train = train.drop('DATUM', axis = 1)
     test = test.drop('DATUM', axis = 1)
 
-        # Calculate Z-scores for the 'value' column
+    # Calculate Z-scores 
     train = get_label(train, outlier_threshold = outlier_threshold, to_predict = to_predict )
     test = get_label(test, outlier_threshold = outlier_threshold, to_predict = to_predict )
 
-    x_remover_list = ['is_outlier', 'DATUM']
-    if to_predict == 'Artikel3':
-        x_remover_list.append('Artikel5')
-    if to_predict == 'Artikel5':
-        x_remover_list.append('Artikel3')
+    x_remover_list = ['is_outlier', 'DATUM', 'Artikel5','Artikel3']
+
 
     X_train = train.loc[:, ~train.columns.isin(x_remover_list)]
     y_train = train['is_outlier']
 
     X_test = test.loc[:, ~test.columns.isin(x_remover_list)]
     y_test = test['is_outlier']
-
 
     model = xgb.XGBClassifier(random_state = 2332, objective = 'binary:logistic', eval_metric = 'logloss')
     
@@ -144,5 +137,17 @@ def outlier_detector(train, test, to_predict = 'Artikel3', outlier_threshold = 1
 
 
 
+
+def arima_model(train, to_predict = 'Artikel3'):
+    train = train.drop('DATUM', axis = 1)
+    
+    X_train = train.loc[:, ~train.columns.isin(['Artikel3', 'Artikel5'])]
+
+    y_train = train[to_predict]
+
+    model = pm.auto_arima(y_train, seasonal=True, m=52)
+    #preds = model.predict(X_test)
+
+    return model
 if __name__ == "__main__":
     df = pd.read_excel('data/Zeitreihen_2Artikel.xlsx')  
