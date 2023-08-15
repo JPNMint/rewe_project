@@ -2,13 +2,13 @@ import numpy as np
 import pandas as pd
 import xgboost as xgb
 from sklearn import metrics
-from sklearn.model_selection import cross_val_predict,GridSearchCV
+from sklearn.model_selection import cross_val_predict,GridSearchCV, TimeSeriesSplit
 import matplotlib.pyplot as plt
 from sklearn.metrics import mean_squared_error, mean_absolute_error, roc_auc_score
 from sklearn.preprocessing import StandardScaler
 from scipy.stats.mstats import winsorize
 import pmdarima as pm
-
+#https://medium.com/mlearning-ai/time-series-forecasting-with-xgboost-and-lightgbm-predicting-energy-consumption-460b675a9cee
 
 def xgb_model(train, test, to_predict = 'Artikel3', plot = False, winsorization = True):
     train = train.drop('DATUM', axis = 1)
@@ -33,15 +33,16 @@ def xgb_model(train, test, to_predict = 'Artikel3', plot = False, winsorization 
 
     # Define a grid of hyperparameters to search through
     param_grid = {
-        'n_estimators': [100, 200, 300, 500, 800],
+        'n_estimators': [100, 200, 300, 500, 700, 900, 1000],
         'learning_rate': [0.01, 0.1, 0.2],
-        'max_depth': [3, 4, 5], # Maximum depth of a tree 
+        'max_depth':  [3, 4, 6, 5, 10], # Maximum depth of a tree 
         'subsample': [0.8, 0.9, 1.0], #Subsample ratio of the training instances. if 0.75, 25% of the data is unused by that learner 
-        'colsample_bytree': [0.8, 0.9, 1.0] 
+        'colsample_bytree':  [0.3, 0.5, 0.8, 0.9, 1.0] 
     }
-
+    #TODO SEE DOC AND ADD LOG
+    cv_split = TimeSeriesSplit(n_splits=4, test_size=100)
     # Initialize GridSearchCV
-    grid_search = GridSearchCV(estimator=model, param_grid=param_grid, cv=3, scoring='neg_mean_squared_error', n_jobs=-1)
+    grid_search = GridSearchCV(estimator=model, param_grid=param_grid, cv=cv_split, scoring='neg_mean_squared_error', n_jobs=-1)
 
 
     grid_search.fit(X_train, y_train)
