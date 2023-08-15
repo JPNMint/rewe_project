@@ -1,8 +1,8 @@
 import numpy as np
 import pandas as pd
 
-
-
+import holidays
+pd.options.mode.chained_assignment = None  # default='warn'
 
 def aggregate(df, resample = 'week'):
 
@@ -38,3 +38,44 @@ def aggregate(df, resample = 'week'):
     return df 
 
 ###
+
+
+def prep(df):
+
+    df = df.dropna()
+    ## add interpolation for the 13 missing values ?
+    #df = df.interpolate(method = 'time')
+    df['DATUM']  =  pd.to_datetime(df['DATUM']) 
+
+    #add day 
+    df['dayofweek'] = df['DATUM'].dt.dayofweek
+
+    #drop sunday 
+
+    df = df[df['dayofweek'] != 6]
+
+    #flag holidays
+    at_holidays = holidays.Austria(years=df['DATUM'].dt.year.unique())
+    df['Holidays'] = df['DATUM'].dt.date.isin(at_holidays)
+    #drop holidays
+    df = df[df['Holidays'] != 1]    
+
+
+    
+    # get various date features
+    df['Week_number'] = df['DATUM'].dt.isocalendar().week.astype('int32')
+    df['dayofweek'] = df['DATUM'].dt.dayofweek
+    df['quarter'] = df['DATUM'].dt.quarter
+    df['month'] = df['DATUM'].dt.month
+    df['year'] = df['DATUM'].dt.year
+    df['dayofyear'] = df['DATUM'].dt.dayofyear
+    df['dayofmonth'] = df['DATUM'].dt.day
+
+
+    return df
+
+
+
+
+
+#df_new = pd.read_excel('data/Zeitreihen_2Artikel.xlsx')  

@@ -4,34 +4,39 @@ from model import xgb_model
 from data_transformation import prep
 
 import matplotlib.pyplot as plt
+from pathlib import Path
+import pickle
+
+
+def split(df, Years = [2017]):
+
+    #train test split, test is year list
+    # Years in Years will be excluded in training
+    test = df[df['year'].isin(Years)]
+    train = df[~df['year'].isin(Years)]
+    
+    return train ,test
+
+
+def train(df, to_predict = 'Artikel3', plot = False):
+
+    train ,test = split(df)
+    model = xgb_model(train,test, to_predict = to_predict, plot = plot)
+    filename = Path().resolve()/f"models/model_XGBOOST_{to_predict}.sav"
+    pickle.dump(model, open(filename, 'wb'))
+    return model
 
 
 
-df = pd.read_excel('data/Zeitreihen_2Artikel.xlsx')  
-df_feat = prep(df)
-
-print(df_feat.dtypes)
-test = df_feat[df_feat['year'] == 2017]
-train = df_feat[df_feat['year'] != 2017]
-#print( np.isnan(train).values.sum() )
-
-model = xgb_model(train,test)
-#cols = test.columns
-#cols = cols.remove(['Artikel3', 'DATUM'])
-test_new = test.loc[:, ~test.columns.isin(['Artikel3', 'Artikel5', 'DATUM'])]
-y_pred = model.predict(test_new)
-
-test['predicted'] = y_pred  
 
 
-plt.figure(figsize=(12, 6))
-#plt.plot(train['DATUM'], train['Artikel3'], label='Actual Sales')
+def pipeline(df, to_predict = 'Artikel3', plot = False):
+    
+    df_feat = prep(df)
+    xgmodel = train(df_feat, to_predict = to_predict)
 
-plt.plot(test['DATUM'], test['Artikel3'], label='Actual Sales')
-plt.plot(test['DATUM'] , test['predicted'], label='Predicted Sales', linestyle='dashed')
-plt.axvline(x=pd.to_datetime('2017-01-01'), color='r', linestyle='--', label='Prediction Start')
-plt.xlabel('Date')
-plt.ylabel('Sales')
-plt.title('Actual vs. Predicted Sales Timeline')
-plt.legend()
-plt.show()
+    return xgmodel
+
+if __name__ == "__main__":
+    df = pd.read_excel('data/Zeitreihen_2Artikel.xlsx')  
+    model = pipeline(df, to_predict = 'Artikel3', plot = False)
