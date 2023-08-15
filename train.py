@@ -58,10 +58,10 @@ def arima_train(df, to_predict = 'Artikel3'):
 if __name__ == "__main__":
     df = pd.read_excel('data/Zeitreihen_2Artikel.xlsx')  
     #model = pipeline(df, to_predict = 'Artikel5', plot = False,  winsorization = True, train = 'Regressor)
-    #pipeline(df, to_predict = 'Artikel3', plot = False,  winsorization = False, type = 'Regressor')
-    #pipeline(df, to_predict = 'Artikel5', plot = False,  winsorization = False, type = 'Regressor')
-    #pipeline(df, to_predict = 'Artikel3', plot = False,  winsorization = True, type = 'Regressor')
-    #pipeline(df, to_predict = 'Artikel5', plot = False,  winsorization = True, type = 'Regressor')
+    pipeline(df, to_predict = 'Artikel3', plot = False,  winsorization = False, type = 'Regressor')
+    pipeline(df, to_predict = 'Artikel5', plot = False,  winsorization = False, type = 'Regressor')
+    pipeline(df, to_predict = 'Artikel3', plot = False,  winsorization = True, type = 'Regressor')
+    pipeline(df, to_predict = 'Artikel5', plot = False,  winsorization = True, type = 'Regressor')
                           
 
 
