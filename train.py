@@ -12,15 +12,18 @@ import pickle
 
 
 def train(df, to_predict = 'Artikel3', plot = False, winsorization = True, type = 'Regressor'):
-
+    #split dataset into = 2017 and != 2017
     train ,test = split(df)
-
+    
+    # type of model for training
     if type == 'Regressor':
         model = xgb_model(train,test, to_predict = to_predict, plot = plot, winsorization = True)
+        #save model
         if winsorization:
             filename = Path().resolve()/f"models/model_XGBOOST_{to_predict}_winsorize.sav"
         else:
             filename = Path().resolve()/f"models/model_XGBOOST_{to_predict}.sav"
+        
         pickle.dump(model, open(filename, 'wb'))
     if type == 'Outlier':
         model = outlier_detector(train, test, to_predict = to_predict, plot = False)
@@ -57,10 +60,10 @@ def arima_train(df, to_predict = 'Artikel3'):
 
 if __name__ == "__main__":
     df = pd.read_excel('data/Zeitreihen_2Artikel.xlsx')  
-    #model = pipeline(df, to_predict = 'Artikel5', plot = False,  winsorization = True, train = 'Regressor)
-    pipeline(df, to_predict = 'Artikel3', plot = False,  winsorization = False, type = 'Regressor')
-    pipeline(df, to_predict = 'Artikel5', plot = False,  winsorization = False, type = 'Regressor')
-    pipeline(df, to_predict = 'Artikel3', plot = False,  winsorization = True, type = 'Regressor')
+
+    #pipeline(df, to_predict = 'Artikel3', plot = False,  winsorization = False, type = 'Regressor')
+    #pipeline(df, to_predict = 'Artikel5', plot = False,  winsorization = False, type = 'Regressor')
+    #pipeline(df, to_predict = 'Artikel3', plot = False,  winsorization = True, type = 'Regressor')
     pipeline(df, to_predict = 'Artikel5', plot = False,  winsorization = True, type = 'Regressor')
                           
 
