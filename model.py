@@ -29,7 +29,7 @@ def xgb_model(train, test, to_predict = 'Artikel3', plot = False, winsorization 
 
     #https://www.statology.org/winsorize/
     if winsorization:
-        y_train = winsorize(y_train, limits = [0.02, 0.1])
+        y_train = winsorize(y_train, limits = [0.02, 0.05])
 
     model = xgb.XGBRegressor(random_state=4122)
     
